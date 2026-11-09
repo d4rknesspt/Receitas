@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Receitas.DAL\Receitas.DAL.csproj" />
+    <ProjectReference Include="..\Receitas.Models\Receitas.Models.csproj" />
+  </ItemGroup>
+
+</Project>
