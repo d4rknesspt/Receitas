@@ -1,4 +1,5 @@
-﻿using Receitas.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Receitas.Models;
 
 namespace Receitas.DAL;
 
@@ -10,6 +11,24 @@ public static class SeedData
         {
             return;
         }
+
+        var hasher = new PasswordHasher<Utilizador>();
+
+        var admin = new Utilizador
+        {
+            Nome = "Administrador",
+            Email = "admin@receitas.pt",
+            Perfil = Perfil.Administrador
+        };
+        admin.PasswordHash = hasher.HashPassword(admin, "Admin123!");
+
+        var utilizador = new Utilizador
+        {
+            Nome = "Utilizador Teste",
+            Email = "utilizador@receitas.pt",
+            Perfil = Perfil.Utilizador
+        };
+        utilizador.PasswordHash = hasher.HashPassword(utilizador, "Utilizador123!");
 
         var sobremesa = new Categoria { Nome = "Sobremesa" };
         var pratoPrincipal = new Categoria { Nome = "Prato principal" };
@@ -32,6 +51,7 @@ public static class SeedData
             Dificuldade = Dificuldade.Facil,
             DuracaoMinutos = 20,
             Validada = true,
+            Autor = admin,
             Ingredientes = new List<ReceitaIngrediente>
             {
                 new() { Ingrediente = farinha, Quantidade = 200, Unidade = "g" },
@@ -49,6 +69,7 @@ public static class SeedData
             Dificuldade = Dificuldade.Facil,
             DuracaoMinutos = 35,
             Validada = true,
+            Autor = admin,
             Ingredientes = new List<ReceitaIngrediente>
             {
                 new() { Ingrediente = batata, Quantidade = 3, Unidade = "unidade" },
@@ -64,6 +85,7 @@ public static class SeedData
             Dificuldade = Dificuldade.Media,
             DuracaoMinutos = 50,
             Validada = false,
+            Autor = utilizador,
             Ingredientes = new List<ReceitaIngrediente>
             {
                 new() { Ingrediente = frango, Quantidade = 500, Unidade = "g" },

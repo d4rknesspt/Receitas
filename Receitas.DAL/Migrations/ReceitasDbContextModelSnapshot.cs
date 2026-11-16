@@ -66,6 +66,9 @@ namespace Receitas.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AutorId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CategoriaId")
                         .HasColumnType("int");
 
@@ -87,6 +90,8 @@ namespace Receitas.DAL.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AutorId");
 
                     b.HasIndex("CategoriaId");
 
@@ -124,13 +129,55 @@ namespace Receitas.DAL.Migrations
                     b.ToTable("ReceitaIngredientes");
                 });
 
+            modelBuilder.Entity("Receitas.Models.Utilizador", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Bloqueado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Perfil")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Utilizadores");
+                });
+
             modelBuilder.Entity("Receitas.Models.Receita", b =>
                 {
+                    b.HasOne("Receitas.Models.Utilizador", "Autor")
+                        .WithMany()
+                        .HasForeignKey("AutorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Receitas.Models.Categoria", "Categoria")
                         .WithMany()
                         .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Autor");
 
                     b.Navigation("Categoria");
                 });

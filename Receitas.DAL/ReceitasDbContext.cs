@@ -14,12 +14,16 @@ public class ReceitasDbContext : DbContext
     public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<Ingrediente> Ingredientes => Set<Ingrediente>();
     public DbSet<ReceitaIngrediente> ReceitaIngredientes => Set<ReceitaIngrediente>();
-
+    public DbSet<Utilizador> Utilizadores => Set<Utilizador>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ReceitaIngrediente>()
             .Property(ri => ri.Quantidade)
             .HasPrecision(10, 2);
+
+        modelBuilder.Entity<Utilizador>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
     }
 }

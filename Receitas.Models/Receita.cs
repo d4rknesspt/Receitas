@@ -14,5 +14,8 @@ public class Receita
 
     public bool Validada { get; set; }
 
+    public int AutorId { get; set; }
+    public Utilizador Autor { get; set; } = null!;
+
     public List<ReceitaIngrediente> Ingredientes { get; set; } = new();
 }
