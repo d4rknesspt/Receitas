@@ -22,6 +22,7 @@ namespace Receitas.API
             {
                 var db = scope.ServiceProvider.GetRequiredService<ReceitasDbContext>();
                 db.Database.Migrate();
+                SeedData.Inicializar(db);
             }
 
             // Configure the HTTP request pipeline.
