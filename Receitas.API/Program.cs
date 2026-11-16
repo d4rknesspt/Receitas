@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Receitas.DAL;
+using Receitas.DAL.Repositories;
+using Receitas.Services;
 namespace Receitas.API
 {
     public class Program
@@ -9,6 +11,8 @@ namespace Receitas.API
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<ReceitasDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddScoped<IReceitaRepository, ReceitaRepository>();
+            builder.Services.AddScoped<IReceitaService, ReceitaService>();
 
             // Add services to the container.
 
