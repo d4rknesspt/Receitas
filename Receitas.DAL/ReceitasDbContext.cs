@@ -14,4 +14,12 @@ public class ReceitasDbContext : DbContext
     public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<Ingrediente> Ingredientes => Set<Ingrediente>();
     public DbSet<ReceitaIngrediente> ReceitaIngredientes => Set<ReceitaIngrediente>();
+
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ReceitaIngrediente>()
+            .Property(ri => ri.Quantidade)
+            .HasPrecision(10, 2);
+    }
 }

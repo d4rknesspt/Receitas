@@ -1,4 +1,5 @@
-
+using Microsoft.EntityFrameworkCore;
+using Receitas.DAL;
 namespace Receitas.API
 {
     public class Program
@@ -6,6 +7,8 @@ namespace Receitas.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<ReceitasDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add services to the container.
 
@@ -14,6 +17,12 @@ namespace Receitas.API
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ReceitasDbContext>();
+                db.Database.Migrate();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
