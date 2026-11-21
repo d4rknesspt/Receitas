@@ -20,14 +20,43 @@ public class ReceitaService : IReceitaService
             || (utilizadorId.HasValue && receita.AutorId == utilizadorId.Value);
     }
 
-    public async Task<List<ReceitaDto>> ObterTodasAsync(int? utilizadorId, bool eAdmin)
+    public async Task<List<ReceitaDto>> ObterTodasAsync(FiltroReceitasDto filtro, int? utilizadorId, bool eAdmin)
     {
-        var receitas = await _repositorio.ObterTodasAsync();
+        var todas = await _repositorio.ObterTodasAsync();
 
-        return receitas
-            .Where(r => PodeVer(r, utilizadorId, eAdmin))
-            .Select(ParaDto)
-            .ToList();
+        var receitas = todas.Where(r => PodeVer(r, utilizadorId, eAdmin));
+
+        if (!string.IsNullOrWhiteSpace(filtro.Texto))
+        {
+            var texto = filtro.Texto.Trim();
+            receitas = receitas.Where(r =>
+                r.Titulo.Contains(texto, StringComparison.OrdinalIgnoreCase) ||
+                r.ModoPreparacao.Contains(texto, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (filtro.CategoriaId.HasValue)
+        {
+            receitas = receitas.Where(r => r.CategoriaId == filtro.CategoriaId.Value);
+        }
+
+        if (filtro.Dificuldade.HasValue)
+        {
+            receitas = receitas.Where(r => r.Dificuldade == filtro.Dificuldade.Value);
+        }
+
+        if (filtro.DuracaoMax.HasValue)
+        {
+            receitas = receitas.Where(r => r.DuracaoMinutos <= filtro.DuracaoMax.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filtro.Ingrediente))
+        {
+            var ingrediente = filtro.Ingrediente.Trim();
+            receitas = receitas.Where(r => r.Ingredientes.Any(ri =>
+                ri.Ingrediente.Nome.Contains(ingrediente, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        return receitas.Select(ParaDto).ToList();
     }
 
     public async Task<ReceitaDto?> ObterPorIdAsync(int id, int? utilizadorId, bool eAdmin)

@@ -23,9 +23,9 @@ public class ReceitasController : ControllerBase
     int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? (int?)id : null;
 
     [HttpGet]
-    public async Task<ActionResult<List<ReceitaDto>>> ObterTodas()
+    public async Task<ActionResult<List<ReceitaDto>>> ObterTodas([FromQuery] FiltroReceitasDto filtro)
     {
-        return Ok(await _servico.ObterTodasAsync(UtilizadorIdOpcional, EAdmin));
+        return Ok(await _servico.ObterTodasAsync(filtro, UtilizadorIdOpcional, EAdmin));
     }
 
     [HttpGet("{id}")]
