@@ -30,3 +30,22 @@ export const DIFICULDADES: Record<number, string> = {
   2: 'Média',
   3: 'Difícil',
 };
+
+export interface Login {
+  email: string;
+  password: string;
+}
+
+export interface Registo {
+  nome: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResposta {
+  token: string;
+  expiraEm: string;
+  nome: string;
+  email: string;
+  perfil: string;
+}
