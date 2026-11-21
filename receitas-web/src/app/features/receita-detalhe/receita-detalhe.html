@@ -1,0 +1,30 @@
+<a routerLink="/" class="btn btn-link px-0 mb-3">← Voltar às receitas</a>
+
+@if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+}
+
+@if (receita(); as r) {
+  <div class="card">
+    <div class="card-body p-4">
+      <h1 class="h3">{{ r.titulo }}</h1>
+      <p class="text-muted">
+        {{ r.categoria }} · {{ r.duracaoMinutos }} min · {{ dificuldades[r.dificuldade] }}
+      </p>
+
+      @if (!r.validada) {
+        <div class="alert alert-warning">Esta receita aguarda validação do administrador.</div>
+      }
+
+      <h2 class="h5 mt-4">Ingredientes</h2>
+      <ul>
+        @for (i of r.ingredientes; track i.ingredienteId) {
+          <li>{{ i.quantidade }} {{ i.unidade }} de {{ i.ingrediente }}</li>
+        }
+      </ul>
+
+      <h2 class="h5 mt-4">Modo de preparação</h2>
+      <p style="white-space: pre-line">{{ r.modoPreparacao }}</p>
+    </div>
+  </div>
+}

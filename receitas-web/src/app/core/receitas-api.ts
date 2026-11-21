@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_URL } from './api.config';
-import { FiltroReceitas, Receita } from './models';
+import { FiltroReceitas, Receita, ReceitaGuardar } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ReceitasApi {
@@ -20,5 +20,13 @@ export class ReceitasApi {
 
   obter(id: number): Observable<Receita> {
     return this.http.get<Receita>(`${API_URL}/receitas/${id}`);
+  }
+
+  criar(dados: ReceitaGuardar): Observable<Receita> {
+    return this.http.post<Receita>(`${API_URL}/receitas`, dados);
+  }
+
+  atualizar(id: number, dados: ReceitaGuardar): Observable<void> {
+    return this.http.put<void>(`${API_URL}/receitas/${id}`, dados);
   }
 }

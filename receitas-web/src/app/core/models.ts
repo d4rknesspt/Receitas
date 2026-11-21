@@ -49,3 +49,28 @@ export interface AuthResposta {
   email: string;
   perfil: string;
 }
+
+export interface Categoria {
+  id: number;
+  nome: string;
+}
+
+export interface Ingrediente {
+  id: number;
+  nome: string;
+}
+
+export interface ReceitaIngredienteGuardar {
+  ingredienteId: number;
+  quantidade: number;
+  unidade: string;
+}
+
+export interface ReceitaGuardar {
+  titulo: string;
+  modoPreparacao: string;
+  categoriaId: number;
+  dificuldade: number;
+  duracaoMinutos: number;
+  ingredientes: ReceitaIngredienteGuardar[];
+}

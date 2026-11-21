@@ -1,4 +1,54 @@
-<h1 class="h3 mb-4">Receitas</h1>
+<h1 class="h3 mb-3">Receitas</h1>
+
+<form [formGroup]="filtros" (ngSubmit)="pesquisar()" class="card card-body mb-4">
+  <div class="row g-2">
+    <div class="col-md-4">
+      <input
+        type="search"
+        class="form-control"
+        placeholder="Título ou modo de preparação"
+        formControlName="texto"
+      />
+    </div>
+    <div class="col-md-4">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Ingrediente (ex.: farinha)"
+        formControlName="ingrediente"
+      />
+    </div>
+    <div class="col-md-4">
+      <select class="form-select" formControlName="categoriaId">
+        <option value="">Todas as categorias</option>
+        @for (c of categorias(); track c.id) {
+          <option [value]="c.id">{{ c.nome }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-4">
+      <select class="form-select" formControlName="dificuldade">
+        <option value="">Qualquer dificuldade</option>
+        @for (d of opcoesDificuldade; track d) {
+          <option [value]="d">{{ dificuldades[d] }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-4">
+      <input
+        type="number"
+        min="1"
+        class="form-control"
+        placeholder="Duração máxima (min)"
+        formControlName="duracaoMax"
+      />
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary flex-fill">Pesquisar</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="limpar()">Limpar</button>
+    </div>
+  </div>
+</form>
 
 @if (erro()) {
   <div class="alert alert-danger">{{ erro() }}</div>
@@ -12,10 +62,18 @@
           <h5 class="card-title">{{ r.titulo }}</h5>
           <p class="text-muted mb-2">{{ r.categoria }} · {{ r.duracaoMinutos }} min</p>
           <span class="badge text-bg-secondary">{{ dificuldades[r.dificuldade] }}</span>
+          @if (!r.validada) {
+            <span class="badge text-bg-warning ms-1">Por validar</span>
+          }
+        </div>
+        <div class="card-footer bg-transparent border-0 pb-3">
+          <a class="btn btn-outline-primary btn-sm" [routerLink]="['/receitas', r.id]">
+            Ver receita
+          </a>
         </div>
       </div>
     </div>
   } @empty {
-    <p>Ainda não há receitas.</p>
+    <p>Não foram encontradas receitas.</p>
   }
 </div>

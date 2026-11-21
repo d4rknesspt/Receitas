@@ -4,14 +4,13 @@
 
     <ul class="navbar-nav me-auto">
       <li class="nav-item">
-        <a
-          class="nav-link"
-          routerLink="/"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          >Início</a
-        >
+        <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Início</a>
       </li>
+      @if (auth.autenticado()) {
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/receitas/nova" routerLinkActive="active">Nova receita</a>
+        </li>
+      }
     </ul>
 
     <ul class="navbar-nav ms-auto align-items-center">
