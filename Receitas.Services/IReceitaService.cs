@@ -6,7 +6,7 @@ public interface IReceitaService
 {
     Task<List<ReceitaDto>> ObterTodasAsync();
     Task<ReceitaDto?> ObterPorIdAsync(int id);
-    Task<ReceitaDto> CriarAsync(ReceitaGuardarDto dto);
-    Task<bool> AtualizarAsync(int id, ReceitaGuardarDto dto);
-    Task<bool> ApagarAsync(int id);
+    Task<ReceitaDto> CriarAsync(ReceitaGuardarDto dto, int autorId);
+    Task<ResultadoOperacao> AtualizarAsync(int id, ReceitaGuardarDto dto, int utilizadorId, bool eAdmin);
+    Task<ResultadoOperacao> ApagarAsync(int id, int utilizadorId, bool eAdmin);
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Receitas.Models.Dtos;
 using Receitas.Services;
 
@@ -15,6 +17,9 @@ public class ReceitasController : ControllerBase
         _servico = servico;
     }
 
+    private int UtilizadorId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    private bool EAdmin => User.IsInRole("Administrador");
+
     [HttpGet]
     public async Task<ActionResult<List<ReceitaDto>>> ObterTodas()
     {
@@ -28,24 +33,37 @@ public class ReceitasController : ControllerBase
         return receita == null ? NotFound() : Ok(receita);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<ReceitaDto>> Criar(ReceitaGuardarDto dto)
     {
-        var criada = await _servico.CriarAsync(dto);
+        var criada = await _servico.CriarAsync(dto, UtilizadorId);
         return CreatedAtAction(nameof(ObterPorId), new { id = criada.Id }, criada);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Atualizar(int id, ReceitaGuardarDto dto)
     {
-        var atualizada = await _servico.AtualizarAsync(id, dto);
-        return atualizada ? NoContent() : NotFound();
+        var resultado = await _servico.AtualizarAsync(id, dto, UtilizadorId, EAdmin);
+        return TraduzirResultado(resultado);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Apagar(int id)
     {
-        var apagada = await _servico.ApagarAsync(id);
-        return apagada ? NoContent() : NotFound();
+        var resultado = await _servico.ApagarAsync(id, UtilizadorId, EAdmin);
+        return TraduzirResultado(resultado);
+    }
+
+    private IActionResult TraduzirResultado(ResultadoOperacao resultado)
+    {
+        return resultado switch
+        {
+            ResultadoOperacao.Sucesso => NoContent(),
+            ResultadoOperacao.SemPermissao => Forbid(),
+            _ => NotFound()
+        };
     }
 }

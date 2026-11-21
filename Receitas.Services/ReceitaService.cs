@@ -25,10 +25,11 @@ public class ReceitaService : IReceitaService
         return receita == null ? null : ParaDto(receita);
     }
 
-    public async Task<ReceitaDto> CriarAsync(ReceitaGuardarDto dto)
+    public async Task<ReceitaDto> CriarAsync(ReceitaGuardarDto dto, int autorId)
     {
         var receita = ParaEntidade(dto);
         receita.Validada = false;
+        receita.AutorId = autorId;
 
         var criada = await _repositorio.CriarAsync(receita);
 
@@ -36,24 +37,42 @@ public class ReceitaService : IReceitaService
         return ParaDto(completa!);
     }
 
-    public async Task<bool> AtualizarAsync(int id, ReceitaGuardarDto dto)
+    public async Task<ResultadoOperacao> AtualizarAsync(int id, ReceitaGuardarDto dto, int utilizadorId, bool eAdmin)
     {
         var existente = await _repositorio.ObterPorIdAsync(id);
         if (existente == null)
         {
-            return false;
+            return ResultadoOperacao.NaoEncontrada;
+        }
+
+        if (!eAdmin && existente.AutorId != utilizadorId)
+        {
+            return ResultadoOperacao.SemPermissao;
         }
 
         var receita = ParaEntidade(dto);
         receita.Id = id;
         receita.Validada = existente.Validada;
 
-        return await _repositorio.AtualizarAsync(receita);
+        var atualizada = await _repositorio.AtualizarAsync(receita);
+        return atualizada ? ResultadoOperacao.Sucesso : ResultadoOperacao.NaoEncontrada;
     }
 
-    public Task<bool> ApagarAsync(int id)
+    public async Task<ResultadoOperacao> ApagarAsync(int id, int utilizadorId, bool eAdmin)
     {
-        return _repositorio.ApagarAsync(id);
+        var existente = await _repositorio.ObterPorIdAsync(id);
+        if (existente == null)
+        {
+            return ResultadoOperacao.NaoEncontrada;
+        }
+
+        if (!eAdmin && existente.AutorId != utilizadorId)
+        {
+            return ResultadoOperacao.SemPermissao;
+        }
+
+        var apagada = await _repositorio.ApagarAsync(id);
+        return apagada ? ResultadoOperacao.Sucesso : ResultadoOperacao.NaoEncontrada;
     }
 
     private static ReceitaDto ParaDto(Receita r)

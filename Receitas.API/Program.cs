@@ -1,48 +1,68 @@
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Receitas.DAL;
 using Receitas.DAL.Repositories;
 using Receitas.Services;
-namespace Receitas.API
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<ReceitasDbContext>(options =>
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ReceitasDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            builder.Services.AddScoped<IReceitaRepository, ReceitaRepository>();
-            builder.Services.AddScoped<IReceitaService, ReceitaService>();
 
-            // Add services to the container.
+builder.Services.AddScoped<IReceitaRepository, ReceitaRepository>();
+builder.Services.AddScoped<IReceitaService, ReceitaService>();
+builder.Services.AddScoped<IUtilizadorRepository, UtilizadorRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
-            var app = builder.Build();
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<ReceitasDbContext>();
-                db.Database.Migrate();
-                SeedData.Inicializar(db);
-            }
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key)),
+            NameClaimType = ClaimTypes.Name,
+            RoleClaimType = ClaimTypes.Role
+        };
+    });
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
+builder.Services.AddAuthorization();
 
-            app.UseHttpsRedirection();
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 
-            app.UseAuthorization();
+var app = builder.Build();
 
-
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ReceitasDbContext>();
+    db.Database.Migrate();
+    SeedData.Inicializar(db);
 }
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
