@@ -29,4 +29,30 @@ public class UtilizadorRepository : IUtilizadorRepository
         await _db.SaveChangesAsync();
         return utilizador;
     }
+
+    public async Task<List<Utilizador>> ObterTodosAsync()
+    {
+        return await _db.Utilizadores
+            .OrderBy(u => u.Nome)
+            .ToListAsync();
+    }
+
+    public async Task<Utilizador?> ObterPorIdAsync(int id)
+    {
+        return await _db.Utilizadores.FindAsync(id);
+    }
+
+    public async Task<bool> DefinirBloqueioAsync(int id, bool bloqueado)
+    {
+        var utilizador = await _db.Utilizadores.FindAsync(id);
+
+        if (utilizador == null)
+        {
+            return false;
+        }
+
+        utilizador.Bloqueado = bloqueado;
+        await _db.SaveChangesAsync();
+        return true;
+    }
 }
