@@ -1,0 +1,32 @@
+export interface ReceitaIngrediente {
+  ingredienteId: number;
+  ingrediente: string;
+  quantidade: number;
+  unidade: string;
+}
+
+export interface Receita {
+  id: number;
+  titulo: string;
+  modoPreparacao: string;
+  categoriaId: number;
+  categoria: string;
+  dificuldade: number;
+  duracaoMinutos: number;
+  validada: boolean;
+  ingredientes: ReceitaIngrediente[];
+}
+
+export interface FiltroReceitas {
+  texto?: string;
+  categoriaId?: number;
+  dificuldade?: number;
+  duracaoMax?: number;
+  ingrediente?: string;
+}
+
+export const DIFICULDADES: Record<number, string> = {
+  1: 'Fácil',
+  2: 'Média',
+  3: 'Difícil',
+};

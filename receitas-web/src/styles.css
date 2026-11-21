@@ -1,0 +1,24 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* Estilos próprios: sobrepõem regras do Bootstrap */
+body {
+  background-color: #fffaf5;
+}
+
+.navbar-receitas {
+  background-color: #7c2d12;
+}
+
+.btn-primary {
+  --bs-btn-bg: #c2410c;
+  --bs-btn-border-color: #c2410c;
+  --bs-btn-hover-bg: #9a3412;
+  --bs-btn-hover-border-color: #9a3412;
+  --bs-btn-active-bg: #7c2d12;
+  --bs-btn-active-border-color: #7c2d12;
+}
+
+.card {
+  border: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}

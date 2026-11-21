@@ -407,6 +407,38 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Pesquisar receitas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas?texto=a&categoriaId=1&duracaoMax=60",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas"
+          ],
+          "query": [
+            {
+              "key": "texto",
+              "value": "a"
+            },
+            {
+              "key": "categoriaId",
+              "value": "1"
+            },
+            {
+              "key": "duracaoMax",
+              "value": "60"
+            }
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "auth": {

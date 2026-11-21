@@ -1,0 +1,21 @@
+<h1 class="h3 mb-4">Receitas</h1>
+
+@if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+}
+
+<div class="row g-3">
+  @for (r of receitas(); track r.id) {
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ r.titulo }}</h5>
+          <p class="text-muted mb-2">{{ r.categoria }} · {{ r.duracaoMinutos }} min</p>
+          <span class="badge text-bg-secondary">{{ dificuldades[r.dificuldade] }}</span>
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <p>Ainda não há receitas.</p>
+  }
+</div>
