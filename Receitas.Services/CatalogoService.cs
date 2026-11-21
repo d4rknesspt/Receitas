@@ -1,4 +1,5 @@
 ﻿using Receitas.DAL.Repositories;
+using Receitas.Models;
 using Receitas.Models.Dtos;
 
 namespace Receitas.Services;
@@ -28,5 +29,45 @@ public class CatalogoService : ICatalogoService
         return ingredientes
             .Select(i => new IngredienteDto { Id = i.Id, Nome = i.Nome })
             .ToList();
+    }
+
+    public async Task<List<IngredienteGestaoDto>> ObterIngredientesPendentesAsync()
+    {
+        var ingredientes = await _repositorio.ObterIngredientesPendentesAsync();
+
+        return ingredientes.Select(ParaGestaoDto).ToList();
+    }
+
+    public async Task<IngredienteGestaoDto?> CriarIngredienteAsync(IngredienteCriarDto dto, bool eAdmin)
+    {
+        var nome = dto.Nome.Trim();
+
+        if (await _repositorio.IngredienteExisteAsync(nome))
+        {
+            return null;
+        }
+
+        var criado = await _repositorio.CriarIngredienteAsync(new Ingrediente
+        {
+            Nome = nome,
+            Validado = eAdmin
+        });
+
+        return ParaGestaoDto(criado);
+    }
+
+    public Task<bool> ValidarIngredienteAsync(int id)
+    {
+        return _repositorio.ValidarIngredienteAsync(id);
+    }
+
+    private static IngredienteGestaoDto ParaGestaoDto(Ingrediente i)
+    {
+        return new IngredienteGestaoDto
+        {
+            Id = i.Id,
+            Nome = i.Nome,
+            Validado = i.Validado
+        };
     }
 }
