@@ -19,17 +19,19 @@ public class ReceitasController : ControllerBase
 
     private int UtilizadorId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private bool EAdmin => User.IsInRole("Administrador");
+    private int? UtilizadorIdOpcional =>
+    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? (int?)id : null;
 
     [HttpGet]
     public async Task<ActionResult<List<ReceitaDto>>> ObterTodas()
     {
-        return Ok(await _servico.ObterTodasAsync());
+        return Ok(await _servico.ObterTodasAsync(UtilizadorIdOpcional, EAdmin));
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ReceitaDto>> ObterPorId(int id)
     {
-        var receita = await _servico.ObterPorIdAsync(id);
+        var receita = await _servico.ObterPorIdAsync(id, UtilizadorIdOpcional, EAdmin);
         return receita == null ? NotFound() : Ok(receita);
     }
 
@@ -56,7 +58,13 @@ public class ReceitasController : ControllerBase
         var resultado = await _servico.ApagarAsync(id, UtilizadorId, EAdmin);
         return TraduzirResultado(resultado);
     }
-
+    [Authorize(Roles = "Administrador")]
+    [HttpPut("{id}/validar")]
+    public async Task<IActionResult> Validar(int id)
+    {
+        var validada = await _servico.ValidarAsync(id);
+        return validada ? NoContent() : NotFound();
+    }
     private IActionResult TraduzirResultado(ResultadoOperacao resultado)
     {
         return resultado switch

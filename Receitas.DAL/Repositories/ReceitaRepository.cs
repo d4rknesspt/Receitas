@@ -69,7 +69,19 @@ public class ReceitaRepository : IReceitaRepository
         await _db.SaveChangesAsync();
         return true;
     }
+    public async Task<bool> DefinirValidacaoAsync(int id, bool validada)
+    {
+        var receita = await _db.Receitas.FindAsync(id);
 
+        if (receita == null)
+        {
+            return false;
+        }
+
+        receita.Validada = validada;
+        await _db.SaveChangesAsync();
+        return true;
+    }
     public async Task<bool> ApagarAsync(int id)
     {
         var receita = await _db.Receitas.FindAsync(id);

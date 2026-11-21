@@ -13,16 +13,33 @@ public class ReceitaService : IReceitaService
         _repositorio = repositorio;
     }
 
-    public async Task<List<ReceitaDto>> ObterTodasAsync()
+    private static bool PodeVer(Receita receita, int? utilizadorId, bool eAdmin)
     {
-        var receitas = await _repositorio.ObterTodasAsync();
-        return receitas.Select(ParaDto).ToList();
+        return receita.Validada
+            || eAdmin
+            || (utilizadorId.HasValue && receita.AutorId == utilizadorId.Value);
     }
 
-    public async Task<ReceitaDto?> ObterPorIdAsync(int id)
+    public async Task<List<ReceitaDto>> ObterTodasAsync(int? utilizadorId, bool eAdmin)
+    {
+        var receitas = await _repositorio.ObterTodasAsync();
+
+        return receitas
+            .Where(r => PodeVer(r, utilizadorId, eAdmin))
+            .Select(ParaDto)
+            .ToList();
+    }
+
+    public async Task<ReceitaDto?> ObterPorIdAsync(int id, int? utilizadorId, bool eAdmin)
     {
         var receita = await _repositorio.ObterPorIdAsync(id);
-        return receita == null ? null : ParaDto(receita);
+
+        if (receita == null || !PodeVer(receita, utilizadorId, eAdmin))
+        {
+            return null;
+        }
+
+        return ParaDto(receita);
     }
 
     public async Task<ReceitaDto> CriarAsync(ReceitaGuardarDto dto, int autorId)
@@ -113,5 +130,9 @@ public class ReceitaService : IReceitaService
                 Unidade = i.Unidade
             }).ToList()
         };
+    }
+    public Task<bool> ValidarAsync(int id)
+    {
+        return _repositorio.DefinirValidacaoAsync(id, true);
     }
 }

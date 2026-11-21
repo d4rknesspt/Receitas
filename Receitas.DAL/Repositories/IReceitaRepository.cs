@@ -9,4 +9,5 @@ public interface IReceitaRepository
     Task<Receita> CriarAsync(Receita receita);
     Task<bool> AtualizarAsync(Receita receita);
     Task<bool> ApagarAsync(int id);
+    Task<bool> DefinirValidacaoAsync(int id, bool validada);
 }
