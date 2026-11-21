@@ -1,0 +1,436 @@
+{
+  "info": {
+    "_postman_id": "04940caf-8dee-46e2-931b-20250ab695ee",
+    "name": "Receitas API",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57049710",
+    "_collection_link": "https://go.postman.co/collection/57049710-04940caf-8dee-46e2-931b-20250ab695ee?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Listar receitas",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": []
+    },
+    {
+      "name": "Obter receita por id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Criar receita",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"titulo\": \"Bolo de chocolate\",\r\n  \"modoPreparacao\": \"Misture todos os ingredientes, leve ao forno a 180 graus durante 40 minutos e deixe arrefecer antes de servir.\",\r\n  \"categoriaId\": 1,\r\n  \"dificuldade\": 2,\r\n  \"duracaoMinutos\": 60,\r\n  \"ingredientes\": [\r\n    { \"ingredienteId\": 1, \"quantidade\": 250, \"unidade\": \"g\" },\r\n    { \"ingredienteId\": 2, \"quantidade\": 3, \"unidade\": \"unidade\" },\r\n    { \"ingredienteId\": 4, \"quantidade\": 200, \"unidade\": \"g\" }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Atualizar receita",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"titulo\": \"Bolo de chocolate fofo\",\r\n  \"modoPreparacao\": \"Misture todos os ingredientes, leve ao forno a 180 graus durante 45 minutos e deixe arrefecer antes de servir.\",\r\n  \"categoriaId\": 1,\r\n  \"dificuldade\": 1,\r\n  \"duracaoMinutos\": 70,\r\n  \"ingredientes\": [\r\n    { \"ingredienteId\": 1, \"quantidade\": 300, \"unidade\": \"g\" },\r\n    { \"ingredienteId\": 2, \"quantidade\": 4, \"unidade\": \"unidade\" },\r\n    { \"ingredienteId\": 3, \"quantidade\": 200, \"unidade\": \"ml\" },\r\n    { \"ingredienteId\": 4, \"quantidade\": 200, \"unidade\": \"g\" }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas/4",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas",
+            "4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Apagar receita",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas/4",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas",
+            "4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {\r\n    pm.collectionVariables.set(\"token\", pm.response.json().token);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"admin@receitas.pt\",\r\n  \"password\": \"Admin123!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login utilizador",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {\r\n    pm.collectionVariables.set(\"token\", pm.response.json().token);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"utilizador@receitas.pt\",\r\n  \"password\": \"Utilizador123!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Quem sou eu",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/eu",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "eu"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Validar receita",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/receitas/3/validar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "receitas",
+            "3",
+            "validar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar categorias",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/categorias",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "categorias"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar ingredientes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/ingredientes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "ingredientes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar utilizadores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/utilizadores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "utilizadores"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Bloquear utilizador",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/utilizadores/2/bloquear",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "utilizadores",
+            "2",
+            "bloquear"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Desbloquear utilizador",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/utilizadores/2/desbloquear",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "utilizadores",
+            "2",
+            "desbloquear"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Propor ingrediente",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nome\": \"Açafrão\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ingredientes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "ingredientes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar ingredientes pendentes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/ingredientes/pendentes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "ingredientes",
+            "pendentes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Validar ingrediente",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/ingredientes/9/validar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "ingredientes",
+            "9",
+            "validar"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "json_web_token_00w5",
+      "secret": true
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}
