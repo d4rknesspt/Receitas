@@ -1,9 +1,35 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoApi } from '../../core/catalogo-api';
 import { Categoria, DIFICULDADES, Ingrediente, Receita, ReceitaGuardar } from '../../core/models';
 import { ReceitasApi } from '../../core/receitas-api';
+
+const TIPO_UNIDADE = 1;
+
+type LinhaForm = FormGroup<{
+  ingredienteId: FormControl<number>;
+  quantidade: FormControl<number>;
+  unidade: FormControl<string>;
+}>;
+
+function inteiro(controlo: AbstractControl): ValidationErrors | null {
+  return Number.isInteger(controlo.value) ? null : { inteiro: true };
+}
+
+function duasCasas(controlo: AbstractControl): ValidationErrors | null {
+  const valor = Number(controlo.value);
+  return Math.abs(valor * 100 - Math.round(valor * 100)) < 1e-6 ? null : { casas: true };
+}
 
 @Component({
   selector: 'app-receita-form',
@@ -41,7 +67,10 @@ export class ReceitaForm {
 
   constructor() {
     this.catalogo.categorias().subscribe((c) => this.categorias.set(c));
-    this.catalogo.ingredientes().subscribe((i) => this.ingredientes.set(i));
+    this.catalogo.ingredientes().subscribe((i) => {
+      this.ingredientes.set(i);
+      this.linhas.controls.forEach((linha) => this.ajustarLinha(linha));
+    });
 
     if (this.id) {
       this.api.obter(this.id).subscribe({
@@ -51,12 +80,54 @@ export class ReceitaForm {
     }
   }
 
-  novaLinha() {
-    return this.fb.nonNullable.group({
+  novaLinha(): LinhaForm {
+    const linha = this.fb.nonNullable.group({
       ingredienteId: [0, [Validators.min(1)]],
       quantidade: [1, [Validators.required, Validators.min(0.01)]],
-      unidade: ['', [Validators.required, Validators.maxLength(30)]],
+      unidade: ['', [Validators.required]],
     });
+
+    linha.controls.ingredienteId.valueChanges.subscribe(() => this.ajustarLinha(linha));
+    return linha;
+  }
+
+  ingredienteDe(linha: LinhaForm): Ingrediente | undefined {
+    return this.ingredientes().find((i) => i.id === linha.controls.ingredienteId.value);
+  }
+
+  unidadesDe(linha: LinhaForm): string[] {
+    return this.ingredienteDe(linha)?.unidades ?? [];
+  }
+
+  passoDe(linha: LinhaForm): number {
+    return this.ingredienteDe(linha)?.tipoMedida === TIPO_UNIDADE ? 1 : 0.01;
+  }
+
+  private ajustarLinha(linha: LinhaForm) {
+    if (this.ingredientes().length === 0) {
+      return;
+    }
+
+    const ingrediente = this.ingredienteDe(linha);
+    const quantidade = linha.controls.quantidade;
+    const unidade = linha.controls.unidade;
+
+    if (!ingrediente) {
+      unidade.setValue('');
+      quantidade.setValidators([Validators.required, Validators.min(0.01)]);
+    } else {
+      if (!ingrediente.unidades.includes(unidade.value)) {
+        unidade.setValue(ingrediente.unidades[0]);
+      }
+
+      quantidade.setValidators(
+        ingrediente.tipoMedida === TIPO_UNIDADE
+          ? [Validators.required, Validators.min(1), inteiro]
+          : [Validators.required, Validators.min(0.01), duasCasas],
+      );
+    }
+
+    quantidade.updateValueAndValidity();
   }
 
   adicionarLinha() {
@@ -88,6 +159,8 @@ export class ReceitaForm {
       dificuldade: r.dificuldade,
       duracaoMinutos: r.duracaoMinutos,
     });
+
+    this.linhas.controls.forEach((linha) => this.ajustarLinha(linha));
   }
 
   guardar() {
@@ -103,22 +176,25 @@ export class ReceitaForm {
     if (this.id) {
       this.api.atualizar(this.id, dados).subscribe({
         next: () => this.router.navigate(['/receitas', this.id]),
-        error: (e) => this.falhou(e.status),
+        error: (e: HttpErrorResponse) => this.falhou(e),
       });
     } else {
       this.api.criar(dados).subscribe({
         next: (receita) => this.router.navigate(['/receitas', receita.id]),
-        error: (e) => this.falhou(e.status),
+        error: (e: HttpErrorResponse) => this.falhou(e),
       });
     }
   }
 
-  private falhou(estado: number) {
+  private falhou(e: HttpErrorResponse) {
     this.aEnviar.set(false);
-    this.erro.set(
-      estado === 403
-        ? 'Não tem permissão para editar esta receita.'
-        : 'Não foi possível guardar a receita. Verifique os dados.',
-    );
+
+    if (e.status === 403) {
+      this.erro.set('Não tem permissão para editar esta receita.');
+    } else if (e.error?.mensagem) {
+      this.erro.set(e.error.mensagem);
+    } else {
+      this.erro.set('Não foi possível guardar a receita. Verifique os dados.');
+    }
   }
 }

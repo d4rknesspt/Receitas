@@ -58,6 +58,8 @@ export interface Categoria {
 export interface Ingrediente {
   id: number;
   nome: string;
+  tipoMedida: number;
+  unidades: string[];
 }
 
 export interface ReceitaIngredienteGuardar {

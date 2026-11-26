@@ -114,29 +114,39 @@
               <div class="invalid-feedback">Escolha um ingrediente.</div>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-3">
               <input
                 type="number"
-                step="0.01"
                 class="form-control"
-                placeholder="Qtd."
+                placeholder="Quantidade"
                 formControlName="quantidade"
+                [step]="passoDe(linha)"
                 [class.is-invalid]="
                   linha.controls.quantidade.invalid && linha.controls.quantidade.touched
                 "
               />
-              <div class="invalid-feedback">Indique a quantidade.</div>
+              <div class="invalid-feedback">
+                @if (linha.controls.quantidade.errors?.['required']) {
+                  Indique a quantidade.
+                } @else if (linha.controls.quantidade.errors?.['inteiro']) {
+                  Tem de ser um número inteiro.
+                } @else if (linha.controls.quantidade.errors?.['casas']) {
+                  No máximo 2 casas decimais.
+                } @else {
+                  Tem de ser maior que zero.
+                }
+              </div>
             </div>
 
-            <div class="col-md-4">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Unidade (g, ml, colher de sopa...)"
-                formControlName="unidade"
-                [class.is-invalid]="linha.controls.unidade.invalid && linha.controls.unidade.touched"
-              />
-              <div class="invalid-feedback">Indique a unidade.</div>
+            <div class="col-md-3">
+              <select class="form-select" formControlName="unidade">
+                @if (unidadesDe(linha).length === 0) {
+                  <option value="">Escolha o ingrediente</option>
+                }
+                @for (u of unidadesDe(linha); track u) {
+                  <option [value]="u">{{ u }}</option>
+                }
+              </select>
             </div>
 
             <div class="col-md-1">
