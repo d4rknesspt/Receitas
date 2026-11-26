@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { API_URL } from './api.config';
-import { Categoria, Ingrediente } from './models';
+import { Categoria, Ingrediente, IngredienteGestao, NovoIngrediente } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogoApi {
@@ -13,5 +13,9 @@ export class CatalogoApi {
 
   ingredientes() {
     return this.http.get<Ingrediente[]>(`${API_URL}/ingredientes`);
+  }
+
+  proporIngrediente(dados: NovoIngrediente) {
+    return this.http.post<IngredienteGestao>(`${API_URL}/ingredientes`, dados);
   }
 }

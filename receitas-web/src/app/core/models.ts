@@ -76,3 +76,21 @@ export interface ReceitaGuardar {
   duracaoMinutos: number;
   ingredientes: ReceitaIngredienteGuardar[];
 }
+
+export interface NovoIngrediente {
+  nome: string;
+  tipoMedida: number;
+}
+
+export interface IngredienteGestao {
+  id: number;
+  nome: string;
+  validado: boolean;
+  tipoMedida: number;
+}
+
+export const TIPOS_MEDIDA = [
+  { valor: 1, texto: 'Unidade (ovos, alho...)' },
+  { valor: 2, texto: 'Peso (g, kg)' },
+  { valor: 3, texto: 'Volume (ml, l)' },
+];

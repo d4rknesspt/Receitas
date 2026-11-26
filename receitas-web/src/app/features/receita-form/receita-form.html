@@ -162,6 +162,62 @@
           </div>
         }
       </div>
+
+      <div class="mt-3">
+        <button type="button" class="btn btn-link px-0" (click)="alternarNovo()">
+          Não encontra o ingrediente? Propor novo
+        </button>
+      </div>
+
+      @if (mostrarNovo()) {
+        <div class="border rounded p-3 mt-2 bg-light">
+          <div class="row g-2">
+            <div class="col-md-5">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nome do ingrediente"
+                [formControl]="novoNome"
+                (keydown.enter)="$event.preventDefault(); proporIngrediente()"
+                [class.is-invalid]="novoNome.invalid && novoNome.touched"
+              />
+              <div class="invalid-feedback">O nome deve ter entre 2 e 80 caracteres.</div>
+            </div>
+
+            <div class="col-md-5">
+              <select
+                class="form-select"
+                [formControl]="novoTipo"
+                [class.is-invalid]="novoTipo.invalid && novoTipo.touched"
+              >
+                <option [ngValue]="0">Como se mede?</option>
+                @for (t of tiposMedida; track t.valor) {
+                  <option [ngValue]="t.valor">{{ t.texto }}</option>
+                }
+              </select>
+              <div class="invalid-feedback">Escolha como se mede o ingrediente.</div>
+            </div>
+
+            <div class="col-md-2">
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                (click)="proporIngrediente()"
+                [disabled]="aProporNovo()"
+              >
+                Propor
+              </button>
+            </div>
+          </div>
+
+          @if (erroNovo()) {
+            <div class="text-danger small mt-2">{{ erroNovo() }}</div>
+          }
+          @if (mensagemNovo()) {
+            <div class="text-success small mt-2">{{ mensagemNovo() }}</div>
+          }
+        </div>
+      }
     </div>
   </div>
 

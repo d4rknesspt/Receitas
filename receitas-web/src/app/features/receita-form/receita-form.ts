@@ -11,7 +11,14 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoApi } from '../../core/catalogo-api';
-import { Categoria, DIFICULDADES, Ingrediente, Receita, ReceitaGuardar } from '../../core/models';
+import {
+  Categoria,
+  DIFICULDADES,
+  Ingrediente,
+  Receita,
+  ReceitaGuardar,
+  TIPOS_MEDIDA,
+} from '../../core/models';
 import { ReceitasApi } from '../../core/receitas-api';
 
 const TIPO_UNIDADE = 1;
@@ -49,8 +56,20 @@ export class ReceitaForm {
   ingredientes = signal<Ingrediente[]>([]);
   dificuldades = DIFICULDADES;
   opcoesDificuldade = [1, 2, 3];
+  tiposMedida = TIPOS_MEDIDA;
   erro = signal('');
   aEnviar = signal(false);
+
+  mostrarNovo = signal(false);
+  aProporNovo = signal(false);
+  erroNovo = signal('');
+  mensagemNovo = signal('');
+
+  novoNome = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.minLength(2), Validators.maxLength(80)],
+  });
+  novoTipo = new FormControl(0, { nonNullable: true, validators: [Validators.min(1)] });
 
   form = this.fb.nonNullable.group({
     titulo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
@@ -67,10 +86,7 @@ export class ReceitaForm {
 
   constructor() {
     this.catalogo.categorias().subscribe((c) => this.categorias.set(c));
-    this.catalogo.ingredientes().subscribe((i) => {
-      this.ingredientes.set(i);
-      this.linhas.controls.forEach((linha) => this.ajustarLinha(linha));
-    });
+    this.carregarIngredientes();
 
     if (this.id) {
       this.api.obter(this.id).subscribe({
@@ -78,6 +94,13 @@ export class ReceitaForm {
         error: () => this.erro.set('Não foi possível carregar a receita.'),
       });
     }
+  }
+
+  private carregarIngredientes() {
+    this.catalogo.ingredientes().subscribe((i) => {
+      this.ingredientes.set(i);
+      this.linhas.controls.forEach((linha) => this.ajustarLinha(linha));
+    });
   }
 
   novaLinha(): LinhaForm {
@@ -138,6 +161,52 @@ export class ReceitaForm {
     if (this.linhas.length > 1) {
       this.linhas.removeAt(indice);
     }
+  }
+
+  alternarNovo() {
+    this.mostrarNovo.update((aberto) => !aberto);
+    this.erroNovo.set('');
+    this.mensagemNovo.set('');
+  }
+
+  proporIngrediente() {
+    this.erroNovo.set('');
+    this.mensagemNovo.set('');
+
+    if (this.novoNome.invalid || this.novoTipo.invalid) {
+      this.novoNome.markAsTouched();
+      this.novoTipo.markAsTouched();
+      return;
+    }
+
+    this.aProporNovo.set(true);
+
+    this.catalogo
+      .proporIngrediente({ nome: this.novoNome.value.trim(), tipoMedida: this.novoTipo.value })
+      .subscribe({
+        next: (criado) => {
+          this.aProporNovo.set(false);
+          this.novoNome.reset();
+          this.novoTipo.reset();
+
+          if (criado.validado) {
+            this.mensagemNovo.set(`"${criado.nome}" foi criado e já pode ser usado.`);
+            this.carregarIngredientes();
+          } else {
+            this.mensagemNovo.set(
+              `"${criado.nome}" foi proposto. Fica disponível depois de validado pelo administrador.`,
+            );
+          }
+        },
+        error: (e: HttpErrorResponse) => {
+          this.aProporNovo.set(false);
+          this.erroNovo.set(
+            e.status === 409
+              ? 'Esse ingrediente já existe.'
+              : 'Não foi possível propor o ingrediente. Verifique os dados.',
+          );
+        },
+      });
   }
 
   private preencher(r: Receita) {
