@@ -29,4 +29,12 @@ export class ReceitasApi {
   atualizar(id: number, dados: ReceitaGuardar): Observable<void> {
     return this.http.put<void>(`${API_URL}/receitas/${id}`, dados);
   }
+
+  validar(id: number): Observable<void> {
+    return this.http.put<void>(`${API_URL}/receitas/${id}/validar`, {});
+  }
+
+  apagar(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_URL}/receitas/${id}`);
+  }
 }

@@ -1,0 +1,65 @@
+@if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+}
+
+<div class="form-check form-switch mb-3">
+  <input
+    class="form-check-input"
+    type="checkbox"
+    id="porValidar"
+    [checked]="apenasPorValidar()"
+    (change)="apenasPorValidar.set($any($event.target).checked)"
+  />
+  <label class="form-check-label" for="porValidar">Mostrar só as receitas por validar</label>
+</div>
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Categoria</th>
+        <th>Estado</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of visiveis(); track r.id) {
+        <tr>
+          <td>{{ r.titulo }}</td>
+          <td>{{ r.categoria }}</td>
+          <td>
+            @if (r.validada) {
+              <span class="badge text-bg-success">Validada</span>
+            } @else {
+              <span class="badge text-bg-warning">Por validar</span>
+            }
+          </td>
+          <td class="text-end">
+            <a class="btn btn-outline-secondary btn-sm me-1" [routerLink]="['/receitas', r.id]">
+              Ver
+            </a>
+            <a
+              class="btn btn-outline-secondary btn-sm me-1"
+              [routerLink]="['/receitas', r.id, 'editar']"
+            >
+              Editar
+            </a>
+            @if (!r.validada) {
+              <button type="button" class="btn btn-success btn-sm me-1" (click)="validar(r)">
+                Validar
+              </button>
+            }
+            <button type="button" class="btn btn-outline-danger btn-sm" (click)="apagar(r)">
+              Apagar
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="text-center text-muted py-4">Não há receitas para mostrar.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

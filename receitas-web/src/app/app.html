@@ -11,6 +11,11 @@
           <a class="nav-link" routerLink="/receitas/nova" routerLinkActive="active">Nova receita</a>
         </li>
       }
+      @if (auth.eAdmin()) {
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Administração</a>
+        </li>
+      }
     </ul>
 
     <ul class="navbar-nav ms-auto align-items-center">
