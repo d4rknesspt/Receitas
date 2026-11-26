@@ -63,6 +63,52 @@ public class CatalogoService : ICatalogoService
         return ParaGestaoDto(criado);
     }
 
+    public async Task<IngredienteGestaoDto?> AtualizarIngredienteAsync(int id, IngredienteCriarDto dto)
+    {
+        var ingrediente = await _repositorio.ObterIngredientePorIdAsync(id);
+
+        if (ingrediente == null)
+        {
+            return null;
+        }
+
+        if (ingrediente.Validado)
+        {
+            throw new RegraNegocioException("Só é possível alterar ingredientes que ainda não foram validados.");
+        }
+
+        var nome = dto.Nome.Trim();
+
+        if (await _repositorio.IngredienteExisteAsync(nome, id))
+        {
+            throw new RegraNegocioException("Já existe outro ingrediente com esse nome.");
+        }
+
+        ingrediente.Nome = nome;
+        ingrediente.TipoMedida = dto.TipoMedida;
+
+        await _repositorio.AtualizarIngredienteAsync(ingrediente);
+        return ParaGestaoDto(ingrediente);
+    }
+
+    public async Task<bool> RecusarIngredienteAsync(int id)
+    {
+        var ingrediente = await _repositorio.ObterIngredientePorIdAsync(id);
+
+        if (ingrediente == null)
+        {
+            return false;
+        }
+
+        if (ingrediente.Validado)
+        {
+            throw new RegraNegocioException("Só é possível recusar ingredientes que ainda não foram validados.");
+        }
+
+        await _repositorio.ApagarIngredienteAsync(ingrediente);
+        return true;
+    }
+
     public Task<bool> ValidarIngredienteAsync(int id)
     {
         return _repositorio.ValidarIngredienteAsync(id);

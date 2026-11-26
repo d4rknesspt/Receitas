@@ -8,5 +8,7 @@ public interface ICatalogoService
     Task<List<IngredienteDto>> ObterIngredientesAsync();
     Task<List<IngredienteGestaoDto>> ObterIngredientesPendentesAsync();
     Task<IngredienteGestaoDto?> CriarIngredienteAsync(IngredienteCriarDto dto, bool eAdmin);
+    Task<IngredienteGestaoDto?> AtualizarIngredienteAsync(int id, IngredienteCriarDto dto);
+    Task<bool> RecusarIngredienteAsync(int id);
     Task<bool> ValidarIngredienteAsync(int id);
 }

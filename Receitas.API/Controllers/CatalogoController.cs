@@ -50,6 +50,36 @@ public class CatalogoController : ControllerBase
     }
 
     [Authorize(Roles = "Administrador")]
+    [HttpPut("ingredientes/{id}")]
+    public async Task<ActionResult<IngredienteGestaoDto>> AtualizarIngrediente(int id, IngredienteCriarDto dto)
+    {
+        try
+        {
+            var atualizado = await _servico.AtualizarIngredienteAsync(id, dto);
+            return atualizado == null ? NotFound() : Ok(atualizado);
+        }
+        catch (RegraNegocioException e)
+        {
+            return Conflict(new { mensagem = e.Message });
+        }
+    }
+
+    [Authorize(Roles = "Administrador")]
+    [HttpDelete("ingredientes/{id}")]
+    public async Task<IActionResult> RecusarIngrediente(int id)
+    {
+        try
+        {
+            var recusado = await _servico.RecusarIngredienteAsync(id);
+            return recusado ? NoContent() : NotFound();
+        }
+        catch (RegraNegocioException e)
+        {
+            return Conflict(new { mensagem = e.Message });
+        }
+    }
+
+    [Authorize(Roles = "Administrador")]
     [HttpPut("ingredientes/{id}/validar")]
     public async Task<IActionResult> ValidarIngrediente(int id)
     {

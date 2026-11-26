@@ -19,12 +19,19 @@ export class AdminIngredientes {
   tiposMedida = TIPOS_MEDIDA;
   erro = signal('');
   mensagem = signal('');
+  emEdicao = signal<number | null>(null);
 
   nome = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.minLength(2), Validators.maxLength(80)],
   });
   tipo = new FormControl(0, { nonNullable: true, validators: [Validators.min(1)] });
+
+  editNome = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.minLength(2), Validators.maxLength(80)],
+  });
+  editTipo = new FormControl(0, { nonNullable: true, validators: [Validators.min(1)] });
 
   constructor() {
     this.carregar();
@@ -48,10 +55,70 @@ export class AdminIngredientes {
 
     this.admin.validarIngrediente(ingrediente.id).subscribe({
       next: () => {
+        this.emEdicao.set(null);
         this.mensagem.set(`"${ingrediente.nome}" foi validado e já pode ser usado.`);
         this.carregar();
       },
       error: () => this.erro.set('Não foi possível validar o ingrediente.'),
+    });
+  }
+
+  editar(ingrediente: IngredienteGestao) {
+    this.erro.set('');
+    this.mensagem.set('');
+    this.editNome.setValue(ingrediente.nome);
+    this.editTipo.setValue(ingrediente.tipoMedida);
+    this.editNome.markAsUntouched();
+    this.editTipo.markAsUntouched();
+    this.emEdicao.set(ingrediente.id);
+  }
+
+  cancelarEdicao() {
+    this.emEdicao.set(null);
+  }
+
+  guardarEdicao(ingrediente: IngredienteGestao) {
+    this.erro.set('');
+    this.mensagem.set('');
+
+    if (this.editNome.invalid || this.editTipo.invalid) {
+      this.editNome.markAsTouched();
+      this.editTipo.markAsTouched();
+      return;
+    }
+
+    this.admin
+      .atualizarIngrediente(ingrediente.id, {
+        nome: this.editNome.value.trim(),
+        tipoMedida: this.editTipo.value,
+      })
+      .subscribe({
+        next: (atualizado) => {
+          this.emEdicao.set(null);
+          this.mensagem.set(`"${atualizado.nome}" foi atualizado.`);
+          this.carregar();
+        },
+        error: (e: HttpErrorResponse) =>
+          this.erro.set(e.error?.mensagem ?? 'Não foi possível atualizar o ingrediente.'),
+      });
+  }
+
+  recusar(ingrediente: IngredienteGestao) {
+    if (!confirm(`Recusar o ingrediente "${ingrediente.nome}"? A proposta será apagada.`)) {
+      return;
+    }
+
+    this.erro.set('');
+    this.mensagem.set('');
+
+    this.admin.recusarIngrediente(ingrediente.id).subscribe({
+      next: () => {
+        this.emEdicao.set(null);
+        this.mensagem.set(`"${ingrediente.nome}" foi recusado.`);
+        this.carregar();
+      },
+      error: (e: HttpErrorResponse) =>
+        this.erro.set(e.error?.mensagem ?? 'Não foi possível recusar o ingrediente.'),
     });
   }
 

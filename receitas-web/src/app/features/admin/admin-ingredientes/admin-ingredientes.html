@@ -52,13 +52,52 @@
     <tbody>
       @for (i of pendentes(); track i.id) {
         <tr>
-          <td>{{ i.nome }}</td>
-          <td>{{ nomeDoTipo(i.tipoMedida) }}</td>
-          <td class="text-end">
-            <button type="button" class="btn btn-success btn-sm" (click)="validar(i)">
-              Validar
-            </button>
-          </td>
+          @if (emEdicao() === i.id) {
+            <td>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                [formControl]="editNome"
+                [class.is-invalid]="editNome.invalid && editNome.touched"
+              />
+              <div class="invalid-feedback">O nome deve ter entre 2 e 80 caracteres.</div>
+            </td>
+            <td>
+              <select
+                class="form-select form-select-sm"
+                [formControl]="editTipo"
+                [class.is-invalid]="editTipo.invalid && editTipo.touched"
+              >
+                <option [ngValue]="0">Como se mede?</option>
+                @for (t of tiposMedida; track t.valor) {
+                  <option [ngValue]="t.valor">{{ t.texto }}</option>
+                }
+              </select>
+              <div class="invalid-feedback">Escolha como se mede o ingrediente.</div>
+            </td>
+            <td class="text-end">
+              <button type="button" class="btn btn-primary btn-sm me-1" (click)="guardarEdicao(i)">
+                Guardar
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelarEdicao()">
+                Cancelar
+              </button>
+            </td>
+          } @else {
+            <td>{{ i.nome }}</td>
+            <td>{{ nomeDoTipo(i.tipoMedida) }}</td>
+            <td class="text-end">
+              <button type="button" class="btn btn-outline-secondary btn-sm me-1" (click)="editar(i)">
+                Editar
+              </button>
+              <button type="button" class="btn btn-success btn-sm me-1" (click)="validar(i)">
+                Validar
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-sm" (click)="recusar(i)">
+                Recusar
+              </button>
+            </td>
+          }
         </tr>
       } @empty {
         <tr>

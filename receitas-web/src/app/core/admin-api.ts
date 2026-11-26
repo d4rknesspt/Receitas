@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { API_URL } from './api.config';
-import { IngredienteGestao, UtilizadorAdmin } from './models';
+import { IngredienteGestao, NovoIngrediente, UtilizadorAdmin } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminApi {
@@ -25,5 +25,13 @@ export class AdminApi {
 
   validarIngrediente(id: number) {
     return this.http.put<void>(`${API_URL}/ingredientes/${id}/validar`, {});
+  }
+
+  atualizarIngrediente(id: number, dados: NovoIngrediente) {
+    return this.http.put<IngredienteGestao>(`${API_URL}/ingredientes/${id}`, dados);
+  }
+
+  recusarIngrediente(id: number) {
+    return this.http.delete<void>(`${API_URL}/ingredientes/${id}`);
   }
 }

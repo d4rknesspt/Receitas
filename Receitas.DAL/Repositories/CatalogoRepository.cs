@@ -42,9 +42,15 @@ public class CatalogoRepository : ICatalogoRepository
             .ToListAsync();
     }
 
-    public async Task<bool> IngredienteExisteAsync(string nome)
+    public async Task<Ingrediente?> ObterIngredientePorIdAsync(int id)
     {
-        return await _db.Ingredientes.AnyAsync(i => i.Nome == nome);
+        return await _db.Ingredientes.FindAsync(id);
+    }
+
+    public async Task<bool> IngredienteExisteAsync(string nome, int? ignorarId = null)
+    {
+        return await _db.Ingredientes.AnyAsync(i =>
+            i.Nome == nome && (ignorarId == null || i.Id != ignorarId));
     }
 
     public async Task<Ingrediente> CriarIngredienteAsync(Ingrediente ingrediente)
@@ -52,6 +58,18 @@ public class CatalogoRepository : ICatalogoRepository
         _db.Ingredientes.Add(ingrediente);
         await _db.SaveChangesAsync();
         return ingrediente;
+    }
+
+    public async Task AtualizarIngredienteAsync(Ingrediente ingrediente)
+    {
+        _db.Ingredientes.Update(ingrediente);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task ApagarIngredienteAsync(Ingrediente ingrediente)
+    {
+        _db.Ingredientes.Remove(ingrediente);
+        await _db.SaveChangesAsync();
     }
 
     public async Task<bool> ValidarIngredienteAsync(int id)
