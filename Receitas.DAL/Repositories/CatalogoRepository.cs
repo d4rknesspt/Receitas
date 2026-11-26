@@ -35,6 +35,13 @@ public class CatalogoRepository : ICatalogoRepository
             .ToListAsync();
     }
 
+    public async Task<List<Ingrediente>> ObterIngredientesPorIdsAsync(List<int> ids)
+    {
+        return await _db.Ingredientes
+            .Where(i => ids.Contains(i.Id))
+            .ToListAsync();
+    }
+
     public async Task<bool> IngredienteExisteAsync(string nome)
     {
         return await _db.Ingredientes.AnyAsync(i => i.Nome == nome);

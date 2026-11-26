@@ -7,10 +7,12 @@ namespace Receitas.Services;
 public class ReceitaService : IReceitaService
 {
     private readonly IReceitaRepository _repositorio;
+    private readonly ICatalogoRepository _catalogo;
 
-    public ReceitaService(IReceitaRepository repositorio)
+    public ReceitaService(IReceitaRepository repositorio, ICatalogoRepository catalogo)
     {
         _repositorio = repositorio;
+        _catalogo = catalogo;
     }
 
     private static bool PodeVer(Receita receita, int? utilizadorId, bool eAdmin)
@@ -73,6 +75,8 @@ public class ReceitaService : IReceitaService
 
     public async Task<ReceitaDto> CriarAsync(ReceitaGuardarDto dto, int autorId)
     {
+        await ValidarIngredientesAsync(dto);
+
         var receita = ParaEntidade(dto);
         receita.Validada = false;
         receita.AutorId = autorId;
@@ -95,6 +99,8 @@ public class ReceitaService : IReceitaService
         {
             return ResultadoOperacao.SemPermissao;
         }
+
+        await ValidarIngredientesAsync(dto);
 
         var receita = ParaEntidade(dto);
         receita.Id = id;
@@ -119,6 +125,48 @@ public class ReceitaService : IReceitaService
 
         var apagada = await _repositorio.ApagarAsync(id);
         return apagada ? ResultadoOperacao.Sucesso : ResultadoOperacao.NaoEncontrada;
+    }
+
+    public Task<bool> ValidarAsync(int id)
+    {
+        return _repositorio.DefinirValidacaoAsync(id, true);
+    }
+
+    private async Task ValidarIngredientesAsync(ReceitaGuardarDto dto)
+    {
+        var ids = dto.Ingredientes.Select(i => i.IngredienteId).ToList();
+
+        if (ids.Count != ids.Distinct().Count())
+        {
+            throw new RegraNegocioException("O mesmo ingrediente não pode aparecer duas vezes na receita.");
+        }
+
+        var ingredientes = await _catalogo.ObterIngredientesPorIdsAsync(ids);
+
+        foreach (var linha in dto.Ingredientes)
+        {
+            var ingrediente = ingredientes.FirstOrDefault(i => i.Id == linha.IngredienteId);
+
+            if (ingrediente == null || !ingrediente.Validado)
+            {
+                throw new RegraNegocioException("Foi escolhido um ingrediente inexistente ou ainda não validado.");
+            }
+
+            if (!Medidas.UnidadeValida(ingrediente.TipoMedida, linha.Unidade))
+            {
+                var permitidas = string.Join(", ", Medidas.UnidadesPermitidas[ingrediente.TipoMedida]);
+                throw new RegraNegocioException(
+                    $"A unidade \"{linha.Unidade}\" não é válida para {ingrediente.Nome}. Use: {permitidas}.");
+            }
+
+            if (!Medidas.QuantidadeValida(ingrediente.TipoMedida, linha.Quantidade))
+            {
+                var regra = ingrediente.TipoMedida == TipoMedida.Unidade
+                    ? "tem de ser um número inteiro"
+                    : "tem de ser maior que zero, com no máximo 2 casas decimais";
+                throw new RegraNegocioException($"A quantidade de {ingrediente.Nome} {regra}.");
+            }
+        }
     }
 
     private static ReceitaDto ParaDto(Receita r)
@@ -159,9 +207,5 @@ public class ReceitaService : IReceitaService
                 Unidade = i.Unidade
             }).ToList()
         };
-    }
-    public Task<bool> ValidarAsync(int id)
-    {
-        return _repositorio.DefinirValidacaoAsync(id, true);
     }
 }

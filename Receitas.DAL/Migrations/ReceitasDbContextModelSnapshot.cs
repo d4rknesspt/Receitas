@@ -50,6 +50,9 @@ namespace Receitas.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TipoMedida")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Validado")
                         .HasColumnType("bit");
 

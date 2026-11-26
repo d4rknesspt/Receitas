@@ -19,8 +19,9 @@ public class ReceitasController : ControllerBase
 
     private int UtilizadorId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private bool EAdmin => User.IsInRole("Administrador");
+
     private int? UtilizadorIdOpcional =>
-    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? (int?)id : null;
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? (int?)id : null;
 
     [HttpGet]
     public async Task<ActionResult<List<ReceitaDto>>> ObterTodas([FromQuery] FiltroReceitasDto filtro)
@@ -39,16 +40,30 @@ public class ReceitasController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ReceitaDto>> Criar(ReceitaGuardarDto dto)
     {
-        var criada = await _servico.CriarAsync(dto, UtilizadorId);
-        return CreatedAtAction(nameof(ObterPorId), new { id = criada.Id }, criada);
+        try
+        {
+            var criada = await _servico.CriarAsync(dto, UtilizadorId);
+            return CreatedAtAction(nameof(ObterPorId), new { id = criada.Id }, criada);
+        }
+        catch (RegraNegocioException e)
+        {
+            return BadRequest(new { mensagem = e.Message });
+        }
     }
 
     [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Atualizar(int id, ReceitaGuardarDto dto)
     {
-        var resultado = await _servico.AtualizarAsync(id, dto, UtilizadorId, EAdmin);
-        return TraduzirResultado(resultado);
+        try
+        {
+            var resultado = await _servico.AtualizarAsync(id, dto, UtilizadorId, EAdmin);
+            return TraduzirResultado(resultado);
+        }
+        catch (RegraNegocioException e)
+        {
+            return BadRequest(new { mensagem = e.Message });
+        }
     }
 
     [Authorize]
@@ -58,6 +73,7 @@ public class ReceitasController : ControllerBase
         var resultado = await _servico.ApagarAsync(id, UtilizadorId, EAdmin);
         return TraduzirResultado(resultado);
     }
+
     [Authorize(Roles = "Administrador")]
     [HttpPut("{id}/validar")]
     public async Task<IActionResult> Validar(int id)
@@ -65,6 +81,7 @@ public class ReceitasController : ControllerBase
         var validada = await _servico.ValidarAsync(id);
         return validada ? NoContent() : NotFound();
     }
+
     private IActionResult TraduzirResultado(ResultadoOperacao resultado)
     {
         return resultado switch

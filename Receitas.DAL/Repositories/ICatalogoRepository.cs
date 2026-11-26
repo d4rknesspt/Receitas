@@ -7,6 +7,7 @@ public interface ICatalogoRepository
     Task<List<Categoria>> ObterCategoriasAsync();
     Task<List<Ingrediente>> ObterIngredientesValidadosAsync();
     Task<List<Ingrediente>> ObterIngredientesPendentesAsync();
+    Task<List<Ingrediente>> ObterIngredientesPorIdsAsync(List<int> ids);
     Task<bool> IngredienteExisteAsync(string nome);
     Task<Ingrediente> CriarIngredienteAsync(Ingrediente ingrediente);
     Task<bool> ValidarIngredienteAsync(int id);

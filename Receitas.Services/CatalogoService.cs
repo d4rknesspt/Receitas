@@ -27,7 +27,13 @@ public class CatalogoService : ICatalogoService
         var ingredientes = await _repositorio.ObterIngredientesValidadosAsync();
 
         return ingredientes
-            .Select(i => new IngredienteDto { Id = i.Id, Nome = i.Nome })
+            .Select(i => new IngredienteDto
+            {
+                Id = i.Id,
+                Nome = i.Nome,
+                TipoMedida = i.TipoMedida,
+                Unidades = Medidas.UnidadesPermitidas[i.TipoMedida]
+            })
             .ToList();
     }
 
@@ -50,6 +56,7 @@ public class CatalogoService : ICatalogoService
         var criado = await _repositorio.CriarIngredienteAsync(new Ingrediente
         {
             Nome = nome,
+            TipoMedida = dto.TipoMedida,
             Validado = eAdmin
         });
 
@@ -67,7 +74,8 @@ public class CatalogoService : ICatalogoService
         {
             Id = i.Id,
             Nome = i.Nome,
-            Validado = i.Validado
+            Validado = i.Validado,
+            TipoMedida = i.TipoMedida
         };
     }
 }

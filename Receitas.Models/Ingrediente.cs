@@ -5,4 +5,5 @@ public class Ingrediente
     public int Id { get; set; }
     public string Nome { get; set; } = string.Empty;
     public bool Validado { get; set; }
+    public TipoMedida TipoMedida { get; set; } = TipoMedida.Peso;
 }
