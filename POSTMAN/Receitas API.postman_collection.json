@@ -59,6 +59,17 @@
     },
     {
       "name": "Criar receita",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {\r\n    pm.collectionVariables.set(\"receitaId\", pm.response.json().id);\r\n}"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
@@ -99,14 +110,14 @@
           }
         },
         "url": {
-          "raw": "{{baseUrl}}/api/receitas/4",
+          "raw": "{{baseUrl}}/api/receitas/{{receitaId}}",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "receitas",
-            "4"
+            "{{receitaId}}"
           ]
         }
       },
@@ -118,14 +129,14 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/receitas/4",
+          "raw": "{{baseUrl}}/api/receitas/{{receitaId}}",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "receitas",
-            "4"
+            "{{receitaId}}"
           ]
         }
       },
@@ -188,7 +199,46 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"email\": \"utilizador@receitas.pt\",\r\n  \"password\": \"Utilizador123!\"\r\n}",
+          "raw": "{\r\n  \"email\": \"utilizador@receitas.pt\",\r\n  \"password\": \"Teste123!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login Filipe",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {\r\n    pm.collectionVariables.set(\"token\", pm.response.json().token);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"filipe@receitas.pt\",\r\n  \"password\": \"Formador123!\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -234,14 +284,14 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/receitas/3/validar",
+          "raw": "{{baseUrl}}/api/receitas/{{receitaId}}/validar",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "receitas",
-            "3",
+            "{{receitaId}}",
             "validar"
           ]
         }
@@ -286,6 +336,17 @@
     },
     {
       "name": "Listar utilizadores",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const filipe = pm.response.json().find((u) => u.email === \"filipe@receitas.pt\"); if (filipe) { pm.collectionVariables.set(\"filipeId\", filipe.id); }"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -308,14 +369,14 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/utilizadores/2/bloquear",
+          "raw": "{{baseUrl}}/api/utilizadores/{{filipeId}}/bloquear",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "utilizadores",
-            "2",
+            "{{filipeId}}",
             "bloquear"
           ]
         }
@@ -328,14 +389,14 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/utilizadores/2/desbloquear",
+          "raw": "{{baseUrl}}/api/utilizadores/{{filipeId}}/desbloquear",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "utilizadores",
-            "2",
+            "{{filipeId}}",
             "desbloquear"
           ]
         }
@@ -344,12 +405,23 @@
     },
     {
       "name": "Propor ingrediente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              " if (pm.response.code === 201) { pm.collectionVariables.set(\"ingredienteId\", pm.response.json().id); }"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"nome\": \"Açafrão\"\r\n}",
+          "raw": "{ \"nome\": \"Ingrediente {{$randomInt}}\", \"tipoMedida\": 3 }",
           "options": {
             "raw": {
               "language": "json"
@@ -394,14 +466,14 @@
         "method": "PUT",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/ingredientes/9/validar",
+          "raw": "{{baseUrl}}/api/ingredientes/{{ingredienteId}}/validar",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "api",
             "ingredientes",
-            "9",
+            "{{ingredienteId}}",
             "validar"
           ]
         }
@@ -439,6 +511,81 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Editar ingrediente",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"nome\": \"Ingrediente editado {{$randomInt}}\", \"tipoMedida\": 2 }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ingredientes/{{ingredienteId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "ingredientes",
+            "{{ingredienteId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Recusar ingrediente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/ingredientes/{{ingredienteId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "ingredientes",
+            "{{ingredienteId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Registar",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": " { \"nome\": \"Utilizador Postman\", \"email\": \"postman{{$randomInt}}@receitas.pt\", \"password\": \"Teste12345\" }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/registo",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "registo"
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "auth": {
@@ -457,11 +604,15 @@
       "value": ""
     },
     {
-      "key": "json_web_token_00w5",
-      "secret": true
+      "key": "receitaId",
+      "value": ""
     },
     {
-      "key": "token",
+      "key": "ingredienteId",
+      "value": ""
+    },
+    {
+      "key": "filipeId",
       "value": ""
     }
   ]
