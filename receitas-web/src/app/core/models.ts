@@ -94,3 +94,11 @@ export const TIPOS_MEDIDA = [
   { valor: 2, texto: 'Peso (g, kg)' },
   { valor: 3, texto: 'Volume (ml, l)' },
 ];
+
+export interface UtilizadorAdmin {
+  id: number;
+  nome: string;
+  email: string;
+  perfil: string;
+  bloqueado: boolean;
+}

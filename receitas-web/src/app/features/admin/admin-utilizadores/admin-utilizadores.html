@@ -1,0 +1,52 @@
+@if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+}
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Perfil</th>
+        <th>Estado</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (u of utilizadores(); track u.id) {
+        <tr>
+          <td>{{ u.nome }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            @if (u.perfil === 'Administrador') {
+              <span class="badge text-bg-dark">Administrador</span>
+            } @else {
+              <span class="badge text-bg-secondary">Utilizador</span>
+            }
+          </td>
+          <td>
+            @if (u.bloqueado) {
+              <span class="badge text-bg-danger">Bloqueado</span>
+            } @else {
+              <span class="badge text-bg-success">Ativo</span>
+            }
+          </td>
+          <td class="text-end">
+            @if (u.perfil !== 'Administrador') {
+              <button
+                type="button"
+                class="btn btn-sm"
+                [class.btn-outline-danger]="!u.bloqueado"
+                [class.btn-outline-success]="u.bloqueado"
+                (click)="alterarBloqueio(u)"
+              >
+                {{ u.bloqueado ? 'Desbloquear' : 'Bloquear' }}
+              </button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

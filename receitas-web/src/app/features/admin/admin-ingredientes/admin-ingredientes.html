@@ -1,0 +1,92 @@
+@if (erro()) {
+  <div class="alert alert-danger">{{ erro() }}</div>
+}
+@if (mensagem()) {
+  <div class="alert alert-success">{{ mensagem() }}</div>
+}
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Introduzir ingrediente</h2>
+    <div class="row g-2">
+      <div class="col-md-5">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Nome do ingrediente"
+          [formControl]="nome"
+          [class.is-invalid]="nome.invalid && nome.touched"
+        />
+        <div class="invalid-feedback">O nome deve ter entre 2 e 80 caracteres.</div>
+      </div>
+      <div class="col-md-5">
+        <select
+          class="form-select"
+          [formControl]="tipo"
+          [class.is-invalid]="tipo.invalid && tipo.touched"
+        >
+          <option [ngValue]="0">Como se mede?</option>
+          @for (t of tiposMedida; track t.valor) {
+            <option [ngValue]="t.valor">{{ t.texto }}</option>
+          }
+        </select>
+        <div class="invalid-feedback">Escolha como se mede o ingrediente.</div>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-primary w-100" (click)="adicionar()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="h5">Por validar</h2>
+<div class="table-responsive mb-4">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Ingrediente</th>
+        <th>Como se mede</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (i of pendentes(); track i.id) {
+        <tr>
+          <td>{{ i.nome }}</td>
+          <td>{{ nomeDoTipo(i.tipoMedida) }}</td>
+          <td class="text-end">
+            <button type="button" class="btn btn-success btn-sm" (click)="validar(i)">
+              Validar
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="3" class="text-center text-muted py-3">Não há ingredientes por validar.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<h2 class="h5">Validados</h2>
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Ingrediente</th>
+        <th>Como se mede</th>
+        <th>Unidades</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (i of validados(); track i.id) {
+        <tr>
+          <td>{{ i.nome }}</td>
+          <td>{{ nomeDoTipo(i.tipoMedida) }}</td>
+          <td>{{ i.unidades.join(', ') }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/admin.guard';
 import { autenticadoGuard } from './core/auth.guard';
+import { AdminIngredientes } from './features/admin/admin-ingredientes/admin-ingredientes';
 import { AdminLayout } from './features/admin/admin-layout/admin-layout';
 import { AdminReceitas } from './features/admin/admin-receitas/admin-receitas';
+import { AdminUtilizadores } from './features/admin/admin-utilizadores/admin-utilizadores';
 import { LoginPagina } from './features/login/login';
 import { ReceitaDetalhe } from './features/receita-detalhe/receita-detalhe';
 import { ReceitaForm } from './features/receita-form/receita-form';
@@ -23,6 +25,8 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'receitas', pathMatch: 'full' },
       { path: 'receitas', component: AdminReceitas },
+      { path: 'utilizadores', component: AdminUtilizadores },
+      { path: 'ingredientes', component: AdminIngredientes },
     ],
   },
 ];
