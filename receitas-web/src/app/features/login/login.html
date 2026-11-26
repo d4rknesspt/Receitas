@@ -4,6 +4,10 @@
       <div class="card-body p-4">
         <h1 class="h4 mb-3">Entrar</h1>
 
+        @if (expirada) {
+          <div class="alert alert-warning">A sua sessão expirou. Entre novamente.</div>
+        }
+
         @if (erro()) {
           <div class="alert alert-danger">{{ erro() }}</div>
         }
